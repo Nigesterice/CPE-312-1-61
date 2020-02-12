@@ -24,33 +24,13 @@ void OW_Slave(void);
 void OW_WriteByte(uint8_t data);
 uint16_t OW_ReadByte(void);
 
-void sevenSegConfig(void);
-void showTemp(int temp_int);
-
 uint16_t result_16Bit = 0 ;
 float temp = 0;
-
-uint32_t num[10] = {LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 ,  //0
-										  LL_GPIO_PIN_10 | LL_GPIO_PIN_11 , //1
-										  LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_15, //2
-										  LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_15, //3
-										  LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //4
-									    LL_GPIO_PIN_2 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12  | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //5
-										  LL_GPIO_PIN_2 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //6
-							        LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 , //7
-									    LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //8
-											LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15}; //9
-
-uint32_t digit[4] = {LL_GPIO_PIN_0,LL_GPIO_PIN_1,LL_GPIO_PIN_2,LL_GPIO_PIN_3};	
-uint32_t dis[4] = {0};
-uint16_t temp_int;
-
 int main()
 {
 	SystemClock_Config();
 	DWT_Init();
 	DS1820_GPIO_Configure();
-	sevenSegConfig();
 
 	while(1)
 	{
@@ -68,58 +48,20 @@ int main()
 
 		
 		temp = (result_16Bit*1.0)/16.0;	//Convert to readable floating point temperature
-		temp_int = temp * 100;
-		LL_GPIO_SetOutputPin(GPIOB,LL_GPIO_PIN_3);
-		showTemp(temp_int);
-		
 	}
-}
-
-void showTemp(int temp_int)
-{
-	dis[0] = temp_int/1000;
-	dis[1] = (temp_int % 1000) / 100;
-	dis[2] = (temp_int % 100)/10;
-	dis[3] = temp_int % 10;
-	for(int i = 0; i< 4; i++)
-	{
-			LL_GPIO_ResetOutputPin(GPIOC,LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3);
-			LL_GPIO_ResetOutputPin(GPIOB,LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15 | LL_GPIO_PIN_3);
-			LL_GPIO_SetOutputPin(GPIOB,num[dis[i]]);
-			LL_GPIO_SetOutputPin(GPIOB,LL_GPIO_PIN_3);
-			LL_GPIO_SetOutputPin(GPIOC,digit[i]);
-	}
-}
-
-void sevenSegConfig(void)
-{
-	LL_GPIO_InitTypeDef ltc4727_initstruct;
-	
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
-	
-	ltc4727_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
-	ltc4727_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	ltc4727_initstruct.Pull = LL_GPIO_PULL_NO;
-	ltc4727_initstruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	ltc4727_initstruct.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15 | LL_GPIO_PIN_3;
-	LL_GPIO_Init(GPIOB,&ltc4727_initstruct);
-	
-	ltc4727_initstruct.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3;
-	LL_GPIO_Init(GPIOC,&ltc4727_initstruct);
 }
 
 void OW_Master(void)
 {
-	LL_GPIO_SetPinMode(GPIOB,LL_GPIO_PIN_6,LL_GPIO_MODE_OUTPUT);
-	LL_GPIO_SetPinPull(GPIOB,LL_GPIO_PIN_6,LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinMode(GPIOA,LL_GPIO_PIN_9,LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinPull(GPIOA,LL_GPIO_PIN_9,LL_GPIO_PULL_NO);
 
 }
 
 void OW_Slave(void)
 {
-	LL_GPIO_SetPinMode(GPIOB,LL_GPIO_PIN_6,LL_GPIO_MODE_INPUT);
-	LL_GPIO_SetPinPull(GPIOB,LL_GPIO_PIN_6,LL_GPIO_PULL_UP);
+	LL_GPIO_SetPinMode(GPIOA,LL_GPIO_PIN_9,LL_GPIO_MODE_INPUT);
+	LL_GPIO_SetPinPull(GPIOA,LL_GPIO_PIN_9,LL_GPIO_PULL_UP);
 
 }
 
@@ -155,7 +97,7 @@ void OW_WriteBit(uint8_t d)
 	if(d == 1) //Write 1
 	{
 		OW_Master(); //uC occupies wire bus
-		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_6);
+		LL_GPIO_ResetOutputPin(GPIOA,LL_GPIO_PIN_9);
 		DWT_Delay(1);
 		OW_Slave(); //uC releases wire bus
 		DWT_Delay(60);
@@ -171,11 +113,11 @@ void OW_WriteBit(uint8_t d)
 uint8_t OW_ReadBit(void)
 {
 	OW_Master();
-	LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_6);
+	LL_GPIO_ResetOutputPin(GPIOA,LL_GPIO_PIN_9);
 	DWT_Delay(2);
 	OW_Slave();
 	
-	return LL_GPIO_IsInputPinSet(GPIOB, LL_GPIO_PIN_6);	
+	return LL_GPIO_IsInputPinSet(GPIOA,LL_GPIO_PIN_9);	
 }
 
 
@@ -183,25 +125,25 @@ void DS1820_GPIO_Configure(void)
 {
 	LL_GPIO_InitTypeDef ds1820_io;
 	
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
 	
 	ds1820_io.Mode = LL_GPIO_MODE_OUTPUT;
-	ds1820_io.Pin = LL_GPIO_PIN_6;
+	ds1820_io.Pin = LL_GPIO_PIN_9;
 	ds1820_io.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 	ds1820_io.Pull = LL_GPIO_PULL_NO;
 	ds1820_io.Speed = LL_GPIO_SPEED_FREQ_LOW;
-	LL_GPIO_Init(GPIOB, &ds1820_io);
+	LL_GPIO_Init(GPIOA, &ds1820_io);
 }
 
 uint8_t DS1820_ResetPulse(void)
 {	
 	OW_Master();
-	LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_6);
+	LL_GPIO_ResetOutputPin(GPIOA,LL_GPIO_PIN_9);
 	DWT_Delay(480);
 	OW_Slave();
 	DWT_Delay(80);
 	
-	if(LL_GPIO_IsInputPinSet(GPIOB, LL_GPIO_PIN_6) == 0)
+	if(LL_GPIO_IsInputPinSet(GPIOA,LL_GPIO_PIN_9) == 0)
 	{
 		DWT_Delay(400);
 		return 0;
