@@ -16,38 +16,41 @@
 
 void SystemClock_Config(void);
 void TIMBase_Config(void);
-void GPIO_configure(void);
-void Countdown(void);
-uint16_t cnt =0;
-uint16_t num = 30;
-char disp_num[3];
+
+uint8_t count_time = 0;
+uint8_t count_flag = 0;
+uint8_t max_time = 9;
+
 int main()
 {
 	SystemClock_Config();
-	GPIO_configure();
 	TIMBase_Config();
 
 	while(1)
 		{		
-			
+			if(count_flag > 12)
+			{
+				count_flag = 0;
+			}
+			else if(count_flag > 10)
+			{
+				//show_temperature
+				//2 sec
+			}
+						
+			else
+			{
+				//show_time(); 
+				//10 sec
+			}
+			if(count_time >= max_time)
+			{
+				count_time = 0;
+				//speaker 
+			}
 		}
 }
 
-
-void GPIO_configure(void)
-{
-	LL_GPIO_InitTypeDef GPIO_InitStruct;
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-	LL_GPIO_Init(GPIOB,&GPIO_InitStruct);
-	
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_7;
-	LL_GPIO_Init(GPIOB,&GPIO_InitStruct);
-}
 	
 void TIMBase_Config(void)
 {
@@ -75,21 +78,11 @@ void TIM2_IRQHandler(void)
 	if(LL_TIM_IsActiveFlag_UPDATE(TIM2) == SET)
 	{
 		LL_TIM_ClearFlag_UPDATE(TIM2);
-		Countdown();
+		count_flag++;
+		count_time++;
 	}
 }
 
-void Countdown(void)
-{
-	if(cnt != 0)
-	{
-		if(num != 0)
-			{
-				num = num - 1; 
-			}
-	}
-	cnt++;
-}
 
 void SystemClock_Config(void)
 {
