@@ -24,6 +24,8 @@ void OW_Slave(void);
 void OW_WriteByte(uint8_t data);
 uint16_t OW_ReadByte(void);
 
+void temperature_value(void);
+
 uint16_t result_16Bit = 0 ;
 float temp = 0;
 int main()
@@ -34,7 +36,13 @@ int main()
 
 	while(1)
 	{
-		DS1820_ResetPulse();//Send reset pulse
+		temperature_value();
+	}
+}
+
+void temperature_value(void)
+{
+	DS1820_ResetPulse();//Send reset pulse
 		OW_WriteByte(0xCC);//Send 'Skip Rom (0xCC)' command
 		OW_WriteByte(0x44);//Send 'Temp Convert (0x44)' command
 		LL_mDelay(200);//Delay at least 200ms (typical conversion time)
@@ -45,12 +53,9 @@ int main()
 		
 		result_16Bit |= OW_ReadByte() ;//Read byte 1 (Temperature data in LSB)
 		result_16Bit |= OW_ReadByte() << 8 ;//Read byte 2 (Temperature data in MSB)
-
 		
 		temp = (result_16Bit*1.0)/16.0;	//Convert to readable floating point temperature
-	}
 }
-
 void OW_Master(void)
 {
 	LL_GPIO_SetPinMode(GPIOA,LL_GPIO_PIN_9,LL_GPIO_MODE_OUTPUT);
