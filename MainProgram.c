@@ -12,8 +12,12 @@
 
 #include "stdio.h"
 
-//=========================================================//
 #define MAX_SEC_TIME 15
+
+//=========================================================//
+void GPIO_Config(void) ;
+void TIMBase_Config(void);
+void SystemClock_Config(void);
 
 //--------------7SEG-USE-ON-GPIOA--------------//
 uint32_t All_GPIOA_Pins = LL_GPIO_PIN_0 ;
@@ -50,10 +54,6 @@ uint32_t _7SEG_DIGIT[4] =
 	LL_GPIO_PIN_3
 } ;
 //---------------------------------------------//
-void GPIO_Config(void) ;
-void TIMBase_Config(void);
-void SystemClock_Config(void);
-
 void _7SEG_reset(void) ;
 void _7SEG_InitDigits(uint32_t[]) ;
 void _7SEG_InitSymbol(uint32_t) ;
@@ -79,7 +79,6 @@ void temperature_value(void);
 #define TIMx_PSC			3 
 #define ARR_CALCULATE(N) (SystemCoreClock) / ((TIMx_PSC) * (N))
 
-void SystemClock_Config(void);
 void SPEAKER_TIM_BASE_Config(uint16_t);
 void SPEAKER_TIM_OC_GPIO_Config(void);
 void SPEAKER_TIM_OC_Config(uint16_t);
